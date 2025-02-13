@@ -5,7 +5,7 @@ from spotipy.oauth2 import SpotifyOAuth
 #le tue credenziali le trovi nella dashboard di prima
 SPOTIFY_CLIENT_ID = "3cb0c68445c2438e9facc310b7b0e827"
 SPOTIFY_CLIENT_SECRET = "10564376edbe42dda53de2a6be0024a0"
-SPOTIFY_REDIRECT_URI = "https://5000-tiruzz-progettospotify-xdzvjhnq8k8.ws-eu117.gitpod.io/callback" #dopo il login andiamo qui
+SPOTIFY_REDIRECT_URI = "https://5000-tiruzz-progettospotify-w8q1ouy2dsx.ws-eu117.gitpod.io/callback" #dopo il login andiamo qui
 
 app = Flask(__name__)
 app.secret_key = 'chiave_per_session' #ci serve per identificare la sessione
@@ -44,6 +44,18 @@ def home():
     playlists = sp.current_user_playlists() #sempre tramite il token sp preso prima
     playlists_info = playlists['items'] #prendiamo solo la lista delle playlist
     return render_template('home.html', user_info=user_info, playlists=playlists_info)
+
+@app.route('/playlist/<playlist_id>')
+def playlist_details(playlist_id):
+    token_info = session.get('token_info', None)
+    if not token_info:
+        return redirect(url_for('login'))
+
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+    brani = sp.playlist_items(playlist_id)
+    brani_specifici = brani['items']
+    return render_template('brani.html',brani = brani_specifici)
+
 @app.route('/logout')
 def logout():
     session.clear() #cancelliamo l'access token salvato in session
